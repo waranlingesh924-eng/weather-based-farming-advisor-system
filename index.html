@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather-Based Farming Advisor - Location</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-seedling"></i> Farming Advisor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active" href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user"></i> Login</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#"><i class="fas fa-user-plus"></i> Register</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-8 col-md-10">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-success text-white text-center py-4">
+                        <h2><i class="fas fa-cloud-sun"></i> Weather-Based Farming Advisor</h2>
+                        <p class="mb-0">Enter your location and climate details</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <form action="{{ url_for('crop') }}" method="POST" id="locationForm">
+                            <!-- Location Details -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="state" class="form-label"><i class="fas fa-map-marker-alt text-success"></i> State</label>
+                                    <input type="text" class="form-control" id="state" name="state" placeholder="Enter state" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="district" class="form-label"><i class="fas fa-city text-success"></i> District</label>
+                                    <input type="text" class="form-control" id="district" name="district" placeholder="Enter district" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="village" class="form-label"><i class="fas fa-home text-success"></i> Village</label>
+                                    <input type="text" class="form-control" id="village" name="village" placeholder="Enter village" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="location" class="form-label"><i class="fas fa-globe text-success"></i> Location</label>
+                                    <input type="text" class="form-control" id="location" name="location" placeholder="Enter location" required>
+                                </div>
+                            </div>
+
+                            <!-- Climate Selection -->
+                            <div class="mb-3">
+                                <label for="climate" class="form-label"><i class="fas fa-thermometer-half text-success"></i> Climate Type</label>
+                                <select class="form-select" id="climate" name="climate" required>
+                                    <option value="">Select Climate</option>
+                                    <option value="Summer">Summer</option>
+                                    <option value="Winter">Winter</option>
+                                    <option value="Rainy">Rainy</option>
+                                    <option value="Spring">Spring</option>
+                                    <option value="Autumn">Autumn</option>
+                                </select>
+                            </div>
+
+                            <!-- Weather Parameters -->
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="temperature" class="form-label"><i class="fas fa-temperature-high text-danger"></i> Temperature (°C)</label>
+                                    <input type="number" class="form-control" id="temperature" name="temperature" placeholder="e.g., 28" step="0.1" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="humidity" class="form-label"><i class="fas fa-tint text-primary"></i> Humidity (%)</label>
+                                    <input type="number" class="form-control" id="humidity" name="humidity" placeholder="e.g., 65" required>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="rainfall" class="form-label"><i class="fas fa-cloud-rain text-info"></i> Rainfall (mm)</label>
+                                    <input type="number" class="form-control" id="rainfall" name="rainfall" placeholder="e.g., 120" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="wind_speed" class="form-label"><i class="fas fa-wind text-secondary"></i> Wind Speed (km/h)</label>
+                                    <input type="number" class="form-control" id="wind_speed" name="wind_speed" placeholder="e.g., 10" required>
+                                </div>
+                            </div>
+                            <div class="mb-3">
+                                <label for="weather_condition" class="form-label"><i class="fas fa-cloud text-muted"></i> Weather Condition</label>
+                                <input type="text" class="form-control" id="weather_condition" name="weather_condition" placeholder="e.g., Partly Cloudy" required>
+                            </div>
+
+                            <!-- Buttons -->
+                            <div class="d-grid gap-2 mt-4">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-arrow-right"></i> Next
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2024 Weather-Based Farming Advisor. All rights reserved.</p>
+            <small class="text-muted">Empowering farmers with smart agricultural decisions</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

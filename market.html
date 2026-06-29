@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather-Based Farming Advisor - Market Price</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-success">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-seedling"></i> Farming Advisor
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="{{ url_for('index') }}"><i class="fas fa-home"></i> Home</a></li>
+                    <li class="nav-item"><a class="nav-link active" href="#"><i class="fas fa-chart-line"></i> Market</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-success text-white text-center py-4">
+                        <h2><i class="fas fa-chart-line"></i> Current Crop Market Price</h2>
+                        <p class="mb-0">Real-time market prices for your selected crop</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <!-- Crop Selection Form -->
+                        <form action="{{ url_for('market') }}" method="POST" id="marketForm">
+                            <div class="mb-3">
+                                <label for="crop_name" class="form-label"><i class="fas fa-plant-wilt text-success"></i> Select Crop</label>
+                                <select class="form-select" id="crop_name" name="crop_name" required>
+                                    <option value="">Choose a crop to check market price</option>
+                                    <option value="Rice" {% if price_data.crop_name == 'Rice' %}selected{% endif %}>Rice</option>
+                                    <option value="Wheat" {% if price_data.crop_name == 'Wheat' %}selected{% endif %}>Wheat</option>
+                                    <option value="Maize" {% if price_data.crop_name == 'Maize' %}selected{% endif %}>Maize</option>
+                                    <option value="Cotton" {% if price_data.crop_name == 'Cotton' %}selected{% endif %}>Cotton</option>
+                                    <option value="Sugarcane" {% if price_data.crop_name == 'Sugarcane' %}selected{% endif %}>Sugarcane</option>
+                                    <option value="Groundnut" {% if price_data.crop_name == 'Groundnut' %}selected{% endif %}>Groundnut</option>
+                                    <option value="Tomato" {% if price_data.crop_name == 'Tomato' %}selected{% endif %}>Tomato</option>
+                                    <option value="Onion" {% if price_data.crop_name == 'Onion' %}selected{% endif %}>Onion</option>
+                                    <option value="Banana" {% if price_data.crop_name == 'Banana' %}selected{% endif %}>Banana</option>
+                                    <option value="Millets" {% if price_data.crop_name == 'Millets' %}selected{% endif %}>Millets</option>
+                                </select>
+                            </div>
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg">
+                                    <i class="fas fa-search-dollar"></i> Check Price
+                                </button>
+                            </div>
+                        </form>
+
+                        {% if price_data and price_data.price %}
+                            <!-- Market Price Display -->
+                            <hr class="my-4">
+                            
+                            <div class="price-card">
+                                <!-- Price Summary -->
+                                <div class="row">
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card text-center border-success">
+                                            <div class="card-body">
+                                                <h6 class="text-muted">Current Price</h6>
+                                                <h2 class="text-success">₹{{ price_data.price }}/{{ price_data.unit }}</h2>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card text-center border-info">
+                                            <div class="card-body">
+                                                <h6 class="text-muted">Market Trend</h6>
+                                                {% if price_data.trend == 'Increasing' %}
+                                                    <h3 class="text-success"><i class="fas fa-arrow-up"></i> {{ price_data.trend }}</h3>
+                                                {% elif price_data.trend == 'Decreasing' %}
+                                                    <h3 class="text-danger"><i class="fas fa-arrow-down"></i> {{ price_data.trend }}</h3>
+                                                {% else %}
+                                                    <h3 class="text-warning"><i class="fas fa-minus"></i> {{ price_data.trend }}</h3>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-3">
+                                        <div class="card text-center border-primary">
+                                            <div class="card-body">
+                                                <h6 class="text-muted">Crop</h6>
+                                                <h3 class="text-primary">{{ price_data.crop_name }}</h3>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Price Chart -->
+                                <div class="card mb-3">
+                                    <div class="card-header bg-light">
+                                        <i class="fas fa-chart-bar"></i> Price Trend (Last 6 Months)
+                                    </div>
+                                    <div class="card-body">
+                                        <canvas id="priceChart" height="200"></canvas>
+                                    </div>
+                                </div>
+
+                                <!-- Market Details -->
+                                <div class="row">
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6><i class="fas fa-store text-success"></i> Nearby Market</h6>
+                                                <p class="mb-0">{{ price_data.market }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6 mb-3">
+                                        <div class="card">
+                                            <div class="card-body">
+                                                <h6><i class="fas fa-calendar-alt text-success"></i> Last Updated</h6>
+                                                <p class="mb-0">{{ "2024-12-15" }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Additional Info -->
+                                <div class="alert alert-info">
+                                    <i class="fas fa-info-circle"></i> 
+                                    <strong>Note:</strong> Prices are based on average market rates and may vary by location and quality.
+                                    For accurate pricing, please check with your local mandi.
+                                </div>
+                            </div>
+                        {% elif price_data and price_data.error %}
+                            <div class="alert alert-warning mt-4">
+                                <i class="fas fa-exclamation-circle"></i> {{ price_data.error }}
+                            </div>
+                        {% else %}
+                            <div class="alert alert-secondary mt-4 text-center">
+                                <i class="fas fa-info-circle"></i> Please select a crop to view market prices.
+                            </div>
+                        {% endif %}
+
+                        <!-- Buttons -->
+                        <div class="d-flex gap-2 mt-4">
+                            <a href="{{ url_for('disease') }}" class="btn btn-secondary btn-lg flex-fill">
+                                <i class="fas fa-arrow-left"></i> Previous
+                            </a>
+                            <a href="{{ url_for('thankyou') }}" class="btn btn-success btn-lg flex-fill">
+                                <i class="fas fa-check"></i> Finish
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-dark text-white mt-5 py-4">
+        <div class="container text-center">
+            <p class="mb-0">&copy; 2024 Weather-Based Farming Advisor. All rights reserved.</p>
+            <small class="text-muted">Empowering farmers with smart agricultural decisions</small>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    
+    {% if price_data and price_data.price %}
+    <script>
+        // Initialize Price Chart
+        document.addEventListener('DOMContentLoaded', function() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            const cropName = '{{ price_data.crop_name }}';
+            
+            // Generate sample price data based on crop
+            let prices = [];
+            let labels = [];
+            const months = ['Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+            
+            // Sample price fluctuations
+            const basePrice = {{ price_data.price }};
+            const trend = '{{ price_data.trend }}';
+            
+            let price = basePrice * 0.7;
+            for (let i = 0; i < 6; i++) {
+                labels.push(months[i]);
+                if (trend === 'Increasing') {
+                    price += Math.random() * 10 + 5;
+                } else if (trend === 'Decreasing') {
+                    price -= Math.random() * 10 + 5;
+                } else {
+                    price += (Math.random() - 0.5) * 20;
+                }
+                prices.push(Math.max(price, basePrice * 0.5));
+            }
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Price (₹/{{ price_data.unit }})',
+                        data: prices,
+                        borderColor: '#28a745',
+                        backgroundColor: 'rgba(40, 167, 69, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            ticks: {
+                                callback: function(value) {
+                                    return '₹' + value;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+    {% endif %}
+</body>
+</html>
